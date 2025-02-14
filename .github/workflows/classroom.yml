@@ -1,0 +1,36 @@
+name: CI/CD
+run-name: Testing ${{ github.repository }} by @${{ github.actor }}
+
+on:
+  create:
+  repository_dispatch: 
+  workflow_dispatch: 
+    inputs:
+      toward_zero:
+        description: "Округление к 0"
+        default: true
+        type: boolean
+      toward_nearest_even:
+        description: "Округление к ближайшему чётному"
+        default: false
+        type: boolean
+      toward_pinf:
+        description: "Округление к +inf"
+        default: false
+        type: boolean
+      toward_ninf:
+        description: "Округление к -inf"
+        default: false
+        type: boolean
+
+jobs:
+  buildtest:
+    with:
+      student_url:         ${{ github.repository }}
+      student_ref:         ${{ github.sha }}
+      toward_zero:         ${{ inputs.toward_zero }}
+      toward_nearest_even: ${{ inputs.toward_nearest_even }}
+      toward_pinf:         ${{ inputs.toward_pinf }}
+      toward_ninf:         ${{ inputs.toward_ninf }}
+    uses: skkv-se-comp-arch/private-tools/.github/workflows/floating-point.yml@main
+    secrets: inherit            
