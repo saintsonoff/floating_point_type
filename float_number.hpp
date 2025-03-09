@@ -157,8 +157,8 @@ class FloatingPointNumber : RoundingDevice<kRounding, fl_p_detail::uint_n_t<512>
         std::stringstream result_ss;
 
         result_ss << to_string();
-        // result_ss << " ";
-        // result_ss << get_hex();
+        result_ss << " ";
+        result_ss << get_hex();
 
         return result_ss.str();
     };
