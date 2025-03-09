@@ -15,7 +15,7 @@ class RoundingDevice {  };
 template<typename IntegerType>
 class RoundingDevice<RoundingType::TOWARD_EVEN, IntegerType> {
   protected:
-    IntegerType rounding(IntegerType value, uint rounded_digit_pos, bool is_negative) {
+    IntegerType rounding(IntegerType value, int rounded_digit_pos, bool is_negative) {
 		IntegerType rounded_mask = (IntegerType{0b1} << rounded_digit_pos) - IntegerType{0b1};
 
 
@@ -46,7 +46,7 @@ class RoundingDevice<RoundingType::TOWARD_EVEN, IntegerType> {
 	}
 
 	std::pair<IntegerType, IntegerType> lowerbound_underflow(IntegerType mant_size, IntegerType exp_size, bool is_negative,
-      IntegerType value, uint rounded_digit_pos) {
+      IntegerType value, int rounded_digit_pos) {
 
 		IntegerType rounded_mask = (IntegerType{0b1} << rounded_digit_pos) - IntegerType{0b1};
 
@@ -68,7 +68,7 @@ class RoundingDevice<RoundingType::TOWARD_EVEN, IntegerType> {
 template<typename IntegerType>
 class RoundingDevice<RoundingType::TOWARD_ZERO, IntegerType> {
   protected:
-    IntegerType rounding(IntegerType value, uint rounded_digit_pos, bool is_negative) {
+    IntegerType rounding(IntegerType value, int rounded_digit_pos, bool is_negative) {
 		IntegerType rounded_mask = (IntegerType{0b1} << rounded_digit_pos) - IntegerType{0b1};
 
 		IntegerType result_value = value & ~rounded_mask;
@@ -92,7 +92,7 @@ class RoundingDevice<RoundingType::TOWARD_ZERO, IntegerType> {
 template<typename IntegerType>
 class RoundingDevice<RoundingType::TOWARD_POS_INF, IntegerType> {
   protected:
-    IntegerType rounding(IntegerType value, uint rounded_digit_pos, bool is_negative) {
+    IntegerType rounding(IntegerType value, int rounded_digit_pos, bool is_negative) {
 		IntegerType rounded_mask = (IntegerType{0b1} << rounded_digit_pos) - IntegerType{0b1};
 
 		IntegerType result_value = value & ~rounded_mask;
@@ -137,7 +137,7 @@ class RoundingDevice<RoundingType::TOWARD_POS_INF, IntegerType> {
 template<typename IntegerType>
 class RoundingDevice<RoundingType::TOWARD_NEG_INF, IntegerType> {
   protected:
-    IntegerType rounding(IntegerType value, uint rounded_digit_pos, bool is_negative) {
+    IntegerType rounding(IntegerType value, int rounded_digit_pos, bool is_negative) {
 		IntegerType rounded_mask = (IntegerType{0b1} << rounded_digit_pos) - IntegerType{0b1};
 
 		IntegerType result_value = value & ~rounded_mask;

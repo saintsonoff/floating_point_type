@@ -109,7 +109,7 @@ class FloatingPointNumber : RoundingDevice<kRounding, fl_p_detail::uint_n_t<512>
     void Mult(const FloatingPointNumber& value);
     void Division(const FloatingPointNumber& value);
 
-    MajorIntegerType ShiftLeft(uint exp_diff, MajorIntegerType mantisa) const {
+    MajorIntegerType ShiftLeft(int exp_diff, MajorIntegerType mantisa) const {
         if (!is_denormalized()) {
             mantisa |= mant_mask() + 1;
         }
