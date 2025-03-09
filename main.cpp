@@ -26,7 +26,6 @@ int labwork_tests_parser(int argc, char** argv) {
 
         auto do_action  = [](auto& value) {
             std::cout << value.output_labwork_task();
-            // std::cout << value;
         };
 
         if (std::string_view{argv[2]} == "0") {
@@ -54,7 +53,8 @@ int labwork_tests_parser(int argc, char** argv) {
 
     if (argc == 6) {
         uint32_t data_fst, data_scd;
-        if (!std::sscanf(argv[3], "%x", &data_fst) || !std::sscanf(argv[5], "%x", &data_scd)) {
+        int operation_index = 3;
+        if (!std::sscanf(argv[4], "%x", &data_fst) || !std::sscanf(argv[5], "%x", &data_scd)) {
             std::cout << "parse data error" << "\n";
             return 0;
         }
@@ -74,22 +74,22 @@ int labwork_tests_parser(int argc, char** argv) {
         if (std::string_view{argv[2]} == "0") {
             FloatingPointNumber<RoundingType::TOWARD_ZERO> number_fst{argv[1], data_fst};
             FloatingPointNumber<RoundingType::TOWARD_ZERO> number_scd{argv[1], data_scd};
-            do_action(number_fst, number_scd, argv[4]);
+            do_action(number_fst, number_scd, argv[operation_index]);
 
         } else if (std::string_view{argv[2]} == "1") {
             FloatingPointNumber<RoundingType::TOWARD_EVEN> number_fst{argv[1], data_fst};
             FloatingPointNumber<RoundingType::TOWARD_EVEN> number_scd{argv[1], data_scd};
-            do_action(number_fst, number_scd, argv[4]);
+            do_action(number_fst, number_scd, argv[operation_index]);
 
         } else if (std::string_view{argv[2]} == "2") {
             FloatingPointNumber<RoundingType::TOWARD_POS_INF> number_fst{argv[1], data_fst};
             FloatingPointNumber<RoundingType::TOWARD_POS_INF> number_scd{argv[1], data_scd};
-            do_action(number_fst, number_scd, argv[4]);
+            do_action(number_fst, number_scd, argv[operation_index]);
 
         } else if (std::string_view{argv[2]} == "3") {
             FloatingPointNumber<RoundingType::TOWARD_NEG_INF> number_fst{argv[1], data_fst};
             FloatingPointNumber<RoundingType::TOWARD_NEG_INF> number_scd{argv[1], data_scd};
-            do_action(number_fst, number_scd, argv[4]);
+            do_action(number_fst, number_scd, argv[operation_index]);
 
         } else {
             std::cout << "unknowing rounding type" << "\n";
@@ -101,12 +101,8 @@ int labwork_tests_parser(int argc, char** argv) {
     return 0;
 };
 
-int main(int argc, char** argv) {
-
-#if 1
-    // поменять местами 1 число и операцию для корректного ввода
-    return labwork_tests_parser(argc, argv);
-
+int test_function() {
+#if 0
     FloatingPointNumber<RoundingType::TOWARD_EVEN> fst{"h", 0xb736};
     FloatingPointNumber<RoundingType::TOWARD_EVEN> scd{"h", 0x7a86};
 
@@ -135,7 +131,7 @@ int main(int argc, char** argv) {
     std::stringstream input_ss;
 
     input_ss << ". ";
-    input_ss << "h 3 0x4145 * 0x142Eb";
+    input_ss << "h 3 + 0xFF10 0x7F01";
 
 
 
@@ -151,4 +147,8 @@ int main(int argc, char** argv) {
   
     return labwork_tests_parser(argc_test, argv_test);
 #endif
+}
+
+int main(int argc, char** argv) {
+    return labwork_tests_parser(argc, argv);
 };

@@ -17,13 +17,11 @@
 #include "bit_count.hpp"
 
 template<RoundingType kRounding = RoundingType::TOWARD_EVEN>
-// class FloatingPointNumber : RoundingDevice<kRounding, fl_p_detail::uint_n_t<512>> {
-class FloatingPointNumber : RoundingDevice<kRounding, uint64_t> {
+class FloatingPointNumber : RoundingDevice<kRounding, fl_p_detail::uint_n_t<512>> {
   public:
     using IntegerType = uint32_t;
     using MoreIntegerType = uint64_t;
-    using MajorIntegerType = uint64_t;
-    // using MajorIntegerType = fl_p_detail::uint_n_t<512>;
+    using MajorIntegerType = fl_p_detail::uint_n_t<512>;
 
 
   public:
@@ -55,7 +53,7 @@ class FloatingPointNumber : RoundingDevice<kRounding, uint64_t> {
     IntegerType get_exp() const { return (data_m & exp_mask()) >> mant_size_m; }
 
     int get_exp_shift() const { return -(0b1 << (exp_size_m - 1)) + 1; };
-    IntegerType get_nan_data() const { return exp_mask() | IntegerType{0b1}; };
+    IntegerType get_nan_data() const { return exp_mask() | (IntegerType{0b1} << (mant_size_m - 1)) | (IntegerType{0b1} << (mant_size_m + exp_size_m)); };
 
     int get_exp_value() const { 
         int exp_value = get_exp();
@@ -184,12 +182,12 @@ class FloatingPointNumber : RoundingDevice<kRounding, uint64_t> {
 
         result_ss << to_string();
 
-        // result_ss << " ";
+        result_ss << " ";
 
-        // std::string current_hex = get_hex();
-        // result_ss << "0x";
-        // result_ss << std::setw(current_hex.size() - 2 + ((current_hex.size() - 2) % 4 ? 4 - (current_hex.size() - 2) % 4 : 0))
-        //     << std::setfill('0') << std::string_view(current_hex.begin() + 2, current_hex.end());
+        std::string current_hex = get_hex();
+        result_ss << "0x";
+        result_ss << std::setw(current_hex.size() - 2 + ((current_hex.size() - 2) % 4 ? 4 - (current_hex.size() - 2) % 4 : 0))
+            << std::setfill('0') << std::string_view(current_hex.begin() + 2, current_hex.end());
 
         return result_ss.str();
     };
@@ -391,8 +389,10 @@ void FloatingPointNumber<kRounding>::Mult(const FloatingPointNumber& value) {
         return;
     }
 
-    if ((is_inf() && !value.is_zero()) || (!is_zero() && value.is_inf())) {
-        data_m = exp_mask() | ((is_negative() ^ value.is_negative() ? IntegerType{0b1} : IntegerType{0b0}) << (mant_size_m + exp_size_m));
+    if ((is_inf() && !value.is_zero() && !value.is_nan()) || (!is_zero() && is_nan() && value.is_inf())) {
+        if (is_negative() ^ value.is_negative()) {
+            Negate();
+        }
         return;
     }
 
@@ -423,52 +423,59 @@ void FloatingPointNumber<kRounding>::Mult(const FloatingPointNumber& value) {
         return;
     }
 
-
     std::function<std::pair<IntegerType, int> (MajorIntegerType value, MajorIntegerType prev_value)>
         round_value = [&](MajorIntegerType value, MajorIntegerType prev_value)
-            -> std::pair<IntegerType, int> {
-        int major_bit_pos = bit_count_v<MajorIntegerType> - 1;
+        -> std::pair<IntegerType, int> {
+    int major_bit_pos = bit_count_v<MajorIntegerType> - 1;
 
-        while((value & (MajorIntegerType{0b1} << major_bit_pos)) == MajorIntegerType{0b0}) {
-            --major_bit_pos;
-        }
-
-        if (major_bit_pos - static_cast<int>(mant_size_m) > 0) {
-            if (prev_value == value) {
-                return {static_cast<uint64_t>(value >> (major_bit_pos - mant_size_m)), major_bit_pos};
-            }
-
-            return round_value(this->rounding(value, major_bit_pos - static_cast<int>(mant_size_m), result_sign), value);
-
-        } else if (major_bit_pos - static_cast<int>(mant_size_m) < 0) {
-            return {value << -(major_bit_pos - static_cast<int>(mant_size_m)), major_bit_pos};
-        } else {
-            return {static_cast<uint64_t>(value), major_bit_pos};
-        }
-    };
-
-
-    auto [result_mantisa, major_bit_pos] = round_value(result_value, 0);
-
-    result_mantisa &= mant_mask();
-    int result_exp = result_exp_value + (major_bit_pos - 2 * mant_size_m);
-    result_exp += -get_exp_shift();
-
-    if (result_exp <= 0) {
-        result_mantisa |= IntegerType{0b1} << mant_size_m;
-        result_mantisa = static_cast<MajorIntegerType>(result_mantisa) >> (-result_exp + 1);
-        result_exp = 0;
-    } else if (result_exp >= (exp_mask() >> mant_size_m)) {
-        auto [upperbound_mant, upperbound_exp] = this->upperbound_overflow(mant_size_m, exp_size_m, result_sign);
-
-        result_exp = static_cast<uint64_t>(upperbound_exp);
-        result_mantisa = static_cast<uint64_t>(upperbound_mant);
-    } else {
-        result_exp <<= mant_size_m;
-        result_exp &= exp_mask();
+    while((value & (MajorIntegerType{0b1} << major_bit_pos)) == MajorIntegerType{0b0}) {
+        --major_bit_pos;
     }
 
-    data_m = (result_mantisa) | (result_exp) | ((result_sign ? IntegerType{0b1} : IntegerType{0b0}) << (mant_size_m + exp_size_m)); 
+    if (major_bit_pos - static_cast<int>(mant_size_m) > 0) {
+        if (prev_value == value) {
+            return {static_cast<uint64_t>(value >> (major_bit_pos - mant_size_m)), major_bit_pos};
+        }
+
+        return round_value(this->rounding(value, major_bit_pos - static_cast<int>(mant_size_m), result_sign), value);
+
+    } else if (major_bit_pos - static_cast<int>(mant_size_m) < 0) {
+        return {value << -(major_bit_pos - static_cast<int>(mant_size_m)), major_bit_pos};
+    } else {
+        return {static_cast<uint64_t>(value), major_bit_pos};
+    }
+};
+
+
+auto [result_mantisa, major_bit_pos] = round_value(result_value, 0);
+
+int result_exp = result_exp_value + (major_bit_pos - 2 * mant_size_m);
+result_exp += -get_exp_shift();
+
+if (-result_exp <= mant_size_m && result_exp <= 0) {
+    result_mantisa = this->rounding(result_mantisa, -result_exp + 1, result_sign);
+    result_mantisa = result_mantisa >> (-result_exp + 1);
+    result_mantisa &= mant_mask();
+    result_exp = 0;
+    result_exp &= exp_mask();
+} else if (result_exp <= 0 && -result_exp + 1 >= mant_size_m) {
+    auto [lowerbound_mant, lowerbound_exp] = this->lowerbound_underflow(mant_size_m, -result_exp + 1, result_sign,
+        result_mantisa & mant_mask(), mant_size_m + 1);
+
+    result_exp = static_cast<uint64_t>(lowerbound_exp);
+    result_mantisa = static_cast<uint64_t>(lowerbound_mant);
+} else if (result_exp >= (exp_mask() >> mant_size_m)) {
+    auto [upperbound_mant, upperbound_exp] = this->upperbound_overflow(mant_size_m, exp_size_m, result_sign);
+
+    result_exp = static_cast<uint64_t>(upperbound_exp);
+    result_mantisa = static_cast<uint64_t>(upperbound_mant);
+} else {
+    result_exp <<= mant_size_m;
+    result_exp &= exp_mask();
+}
+result_mantisa &= mant_mask();
+
+data_m = (result_mantisa) | (result_exp) | ((result_sign ? IntegerType{0b1} : IntegerType{0b0}) << (mant_size_m + exp_size_m)); 
 }
 
 template<RoundingType kRounding>
@@ -477,7 +484,7 @@ void FloatingPointNumber<kRounding>::Division(const FloatingPointNumber& value) 
         return;
     }
 
-    if (value.is_nan() && !is_nan()) {
+    if (value.is_nan()) {
         data_m = value.data_m;
         return;
     }
@@ -497,7 +504,7 @@ void FloatingPointNumber<kRounding>::Division(const FloatingPointNumber& value) 
         return;
     }
 
-    if (is_zero() && !value.is_nan() && !value.is_zero()) {
+    if (is_zero() && !value.is_nan() && !value.is_inf()) {
         data_m = (is_negative() ^ value.is_negative() ? IntegerType{0b1} : IntegerType{0b0}) << (mant_size_m + exp_size_m);
         return;
     }

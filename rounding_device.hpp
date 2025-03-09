@@ -33,12 +33,8 @@ class RoundingDevice<RoundingType::TOWARD_EVEN, IntegerType> {
 			}
 
 		} else {
-			IntegerType result_value = value & ~rounded_mask;
+			result_value = value & ~rounded_mask;
 		}
-
-		// } else if (rounded_value == half_of_major_digit) {
-		// 	result_value &= ~((IntegerType{0b1} << rounded_digit_pos + 1) - IntegerType{0b1});
-		// }
 
 		return result_value;
     };
@@ -55,7 +51,6 @@ class RoundingDevice<RoundingType::TOWARD_EVEN, IntegerType> {
 		IntegerType rounded_mask = (IntegerType{0b1} << rounded_digit_pos) - IntegerType{0b1};
 
 		IntegerType half_of_major_digit = IntegerType{0b1} << rounded_digit_pos - 1;
-		IntegerType result_value = value & ~rounded_mask;
 		IntegerType rounded_value = value & rounded_mask;
 
 		if (rounded_value > half_of_major_digit) {
