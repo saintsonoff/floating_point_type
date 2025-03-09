@@ -48,6 +48,25 @@ class RoundingDevice<RoundingType::TOWARD_EVEN, IntegerType> {
 
 		return inf;
 	}
+
+	std::pair<IntegerType, IntegerType> lowerbound_underflow(IntegerType mant_size, IntegerType exp_size, bool is_negative,
+      IntegerType value, uint rounded_digit_pos) {
+
+		IntegerType rounded_mask = (IntegerType{0b1} << rounded_digit_pos) - IntegerType{0b1};
+
+		IntegerType half_of_major_digit = IntegerType{0b1} << rounded_digit_pos - 1;
+		IntegerType result_value = value & ~rounded_mask;
+		IntegerType rounded_value = value & rounded_mask;
+
+		if (rounded_value > half_of_major_digit) {
+			IntegerType min_mant = IntegerType{0b1};
+			IntegerType min_exp = 0;
+	
+			return {min_mant, min_exp};
+		}
+		
+		return {0, 0};
+	}
 };
 
 
@@ -66,6 +85,11 @@ class RoundingDevice<RoundingType::TOWARD_ZERO, IntegerType> {
 		IntegerType max_exp =  (((IntegerType{0b1} << exp_size) - IntegerType{0b1}) - IntegerType{0b1}) << mant_size;
 
 		return {max_mant, max_exp};
+	}
+
+	std::pair<IntegerType, IntegerType> lowerbound_underflow(IntegerType mant_size, IntegerType exp_size, bool is_negative,
+			IntegerType , uint) {
+		return {0, 0};
 	}
 };
 
@@ -98,6 +122,20 @@ class RoundingDevice<RoundingType::TOWARD_POS_INF, IntegerType> {
 
 		return {max_mant, max_exp};
 	}
+
+	std::pair<IntegerType, IntegerType> lowerbound_underflow(IntegerType mant_size, IntegerType exp_size, bool is_negative,
+			IntegerType , uint) {
+		IntegerType min_mant = IntegerType{0b1};
+		IntegerType min_exp = 0;
+
+		std::pair<IntegerType, IntegerType> inf = {0, ((IntegerType{0b1} << exp_size) - IntegerType{0b1})  << mant_size};
+	
+		if (is_negative) {
+			return {0, 0};
+		}
+
+		return {min_mant, min_exp};
+	}
 };
 
 
@@ -127,6 +165,18 @@ class RoundingDevice<RoundingType::TOWARD_NEG_INF, IntegerType> {
 		}
 
 		return {max_mant, max_exp};
+	}
+
+	std::pair<IntegerType, IntegerType> lowerbound_underflow(IntegerType mant_size, IntegerType exp_size, bool is_negative,
+			IntegerType , uint) {
+		IntegerType min_mant = IntegerType{0b1};
+		IntegerType min_exp = 0;
+	
+		if (!is_negative) {
+			return {0, 0};
+		}
+
+		return {min_mant, min_exp};
 	}
 };
 

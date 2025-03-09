@@ -48,10 +48,12 @@ class uint_n_t {
 
 
     uint_n_t& operator*=(const uint_n_t& value) {
+        uint_n_t result = 0;
         for (size_t bit_pos = 0; bit_pos < kSize; ++bit_pos) {
             if (data_m.test(bit_pos))
-                *this += value << bit_pos;
+                result += (value << bit_pos);
         }
+        data_m = result.data_m;
         return *this;
     }
 
@@ -60,32 +62,24 @@ class uint_n_t {
             throw std::domain_error("div_by_zero");
         }
 
+        uint_n_t quotient;
         uint_n_t remainder;
+    
         for (int bit_pos = kSize - 1; bit_pos >= 0; --bit_pos) {
             remainder <<= 1;
             remainder.data_m.set(0, data_m.test(bit_pos));
+            
             if (remainder >= value) {
-                remainder = remainder - value;
-                data_m.set(bit_pos);
+                remainder -= value;
+                quotient.data_m.set(bit_pos, 1);
+            } else {
+                quotient.data_m.set(bit_pos, 0);
             }
         }
+
+        data_m = quotient.data_m;
         return *this;
     }
-
-    uint_n_t& operator%=(const uint_n_t& value) {
-        if (value.data_m.none())
-            throw std::domain_error("mod_by_zero");
-
-        for (int i = kSize - 1; i >= 0; --i) {
-            *this <<= 1;
-            data_m.set(0, data_m.test(i));
-            if (*this >= value) {
-                *this -= value;
-            }
-        }
-        return *this;
-    }
-
 
   public:
     uint_n_t operator+(const uint_n_t& value) const {
@@ -114,19 +108,18 @@ class uint_n_t {
         return result;
     }
 
-    uint_n_t operator%(const uint_n_t& value) const {
-        uint_n_t result = *this;
-        result %= value;
-        return result;
-    }
-
 
   public:
 
     template<typename IntType>
-    uint_n_t operator>>(IntType offset) { return {data_m >> offset}; };
+    uint_n_t operator>>(IntType offset) const { return {data_m >> offset}; };
     template<typename IntType>
-    uint_n_t operator<<(IntType offset) { return {data_m << offset}; };
+    uint_n_t operator<<(IntType offset) const { return {data_m << offset}; };
+    
+    template<typename IntType>
+    uint_n_t operator>>=(IntType offset) { data_m >>= offset;  return *this; };
+    template<typename IntType>
+    uint_n_t operator<<=(IntType offset) { data_m <<= offset; return *this; };
     
 
   public:

@@ -64,10 +64,10 @@ int labwork_tests_parser(int argc, char** argv) {
                 std::cout << (fst + scd).output_labwork_task();
             } else if (op == "-") {
                 std::cout << (fst - scd).output_labwork_task();
-            } else if (op == "*") {
-                // std::cout << (fst * scd).output_labwork_task();
+            } else if (op == "*" || op == "M") {
+                std::cout << (fst * scd).output_labwork_task();
             } else if (op == "/") {
-                // std::cout << (fst / scd).output_labwork_task();
+                std::cout << (fst / scd).output_labwork_task();
             }
         };
 
@@ -102,5 +102,53 @@ int labwork_tests_parser(int argc, char** argv) {
 };
 
 int main(int argc, char** argv) {
+
+#if 1
+    // поменять местами 1 число и операцию для корректного ввода
     return labwork_tests_parser(argc, argv);
+
+    FloatingPointNumber<RoundingType::TOWARD_EVEN> fst{"h", 0xb736};
+    FloatingPointNumber<RoundingType::TOWARD_EVEN> scd{"h", 0x7a86};
+
+    std::cout << fst.output_labwork_task() << " / ";
+    std::cout << fst.get_hex() << " ";
+    std::cout << "\n";
+    std::cout << " / ";
+    std::cout << "\n";
+    std::cout << scd.output_labwork_task() << " / ";
+    std::cout << scd.get_hex() << " ";
+    std::cout << "\n";
+    std::cout << " = ";
+    
+    std::cout << "\n";
+    std::cout << (fst / scd).get_hex();
+    std::cout << "\n";
+    std::cout << (fst / scd).output_labwork_task();
+    std::cout << "\n";
+    return 0;
+
+    // Ожидалось: '-0x1.1a0p-17'
+    // Получено:  '-0x1.1c0p-17'
+
+  #else
+
+    std::stringstream input_ss;
+
+    input_ss << ". ";
+    input_ss << "h 3 0x4145 * 0x142Eb";
+
+
+
+    int argc_test = 6;
+    std::vector<std::string> input_cont(argc_test);
+    char* argv_test[6];
+    for (auto& arg : input_cont) {
+        input_ss >> arg;
+    }
+    for (size_t i = 0; i < argc_test; ++i) {
+        argv_test[i] = input_cont[i].data();
+    }
+  
+    return labwork_tests_parser(argc_test, argv_test);
+#endif
 };
