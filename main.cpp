@@ -6,10 +6,8 @@
 #include <string>
 #include <vector>
 
-#include "bit_count.hpp"
 #include "float_number.hpp"
 #include "rounding_device.hpp"
-#include "very_long_int.hpp"
 
 int labwork_tests_parser(int argc, char** argv) {
     if (argc != 4 && argc != 6 && argc != 7) {

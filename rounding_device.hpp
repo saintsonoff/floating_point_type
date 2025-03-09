@@ -4,7 +4,6 @@
 #include <cstdint>
 #include <cstddef>
 #include <utility>
-#include <compare>
 
 enum RoundingType { TOWARD_ZERO, TOWARD_EVEN, TOWARD_POS_INF, TOWARD_NEG_INF };
 
@@ -83,7 +82,7 @@ class RoundingDevice<RoundingType::TOWARD_ZERO, IntegerType> {
 	}
 
 	std::pair<IntegerType, IntegerType> lowerbound_underflow(IntegerType mant_size, IntegerType exp_size, bool is_negative,
-			IntegerType , uint) {
+			IntegerType , int) {
 		return {0, 0};
 	}
 };
@@ -119,7 +118,7 @@ class RoundingDevice<RoundingType::TOWARD_POS_INF, IntegerType> {
 	}
 
 	std::pair<IntegerType, IntegerType> lowerbound_underflow(IntegerType mant_size, IntegerType exp_size, bool is_negative,
-			IntegerType , uint) {
+			IntegerType , int) {
 		IntegerType min_mant = IntegerType{0b1};
 		IntegerType min_exp = 0;
 
@@ -163,7 +162,7 @@ class RoundingDevice<RoundingType::TOWARD_NEG_INF, IntegerType> {
 	}
 
 	std::pair<IntegerType, IntegerType> lowerbound_underflow(IntegerType mant_size, IntegerType exp_size, bool is_negative,
-			IntegerType , uint) {
+			IntegerType , int) {
 		IntegerType min_mant = IntegerType{0b1};
 		IntegerType min_exp = 0;
 	
