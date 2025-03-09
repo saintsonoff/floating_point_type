@@ -163,7 +163,7 @@ class FloatingPointNumber : RoundingDevice<kRounding, fl_p_detail::uint_n_t<512>
         return result_ss.str();
     };
 
-    std::string get_hex() {
+    std::string get_hex() const {
         std::stringstream result_ss;
         result_ss << "0x" << std::hex << std::uppercase << data_m;
         return result_ss.str();
