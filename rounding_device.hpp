@@ -5,6 +5,9 @@
 #include <cstddef>
 #include <utility>
 
+#include <string>
+#include <iostream>
+
 enum RoundingType { TOWARD_ZERO, TOWARD_EVEN, TOWARD_POS_INF, TOWARD_NEG_INF };
 
 template<RoundingType kRounding, typename IntegerType = uint64_t>
@@ -17,7 +20,6 @@ class RoundingDevice<RoundingType::TOWARD_EVEN, IntegerType> {
     IntegerType rounding(IntegerType value, int rounded_digit_pos, bool is_negative) {
 		IntegerType rounded_mask = (IntegerType{0b1} << rounded_digit_pos) - IntegerType{0b1};
 
-
 		IntegerType half_of_major_digit = IntegerType{0b1} << rounded_digit_pos - 1;
 		IntegerType result_value = value & ~rounded_mask;
 		IntegerType rounded_value = value & rounded_mask;
@@ -25,7 +27,7 @@ class RoundingDevice<RoundingType::TOWARD_EVEN, IntegerType> {
 		if (rounded_value > half_of_major_digit) {
 			result_value += IntegerType{0b1} << rounded_digit_pos;
 		} else if (rounded_value == half_of_major_digit) {
-			if (IntegerType{0b1} << rounded_digit_pos & value) {
+			if (((IntegerType{0b1} << rounded_digit_pos) & value) != IntegerType{0b0}) {
 				result_value += IntegerType{0b1} << rounded_digit_pos;
 			} else {
 				result_value = value & ~rounded_mask;
