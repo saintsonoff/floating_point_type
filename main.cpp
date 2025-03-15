@@ -19,7 +19,7 @@ int labwork_tests_parser(int argc, char** argv) {
 
     if (argc == 4) {
         uint32_t data;
-        if (!sscanf_s(argv[3], "%x", &data)) {
+        if (!std::sscanf(argv[3], "%x", &data)) {
             std::cout << "parse data error" << "\n";
             return 0;
         }
@@ -54,7 +54,7 @@ int labwork_tests_parser(int argc, char** argv) {
     if (argc == 6) {
         uint32_t data_fst, data_scd;
         int operation_index = 3;
-        if (!sscanf_s(argv[4], "%x", &data_fst) || !sscanf_s(argv[5], "%x", &data_scd)) {
+        if (!std::sscanf(argv[4], "%x", &data_fst) || !std::sscanf(argv[5], "%x", &data_scd)) {
             std::cout << "parse data error" << "\n";
             return 0;
         }
@@ -103,7 +103,7 @@ int labwork_tests_parser(int argc, char** argv) {
     if (argc == 7) {
         uint32_t data_fst, data_scd, data_thd;
         int operation_index = 3;
-        if (!sscanf_s(argv[4], "%x", &data_fst) || !sscanf_s(argv[5], "%x", &data_scd) || !sscanf_s(argv[6], "%x", &data_thd)) {
+        if (!std::sscanf(argv[4], "%x", &data_fst) || !std::sscanf(argv[5], "%x", &data_scd) || !std::sscanf(argv[6], "%x", &data_thd)) {
             std::cout << "parse data error" << "\n";
             return 0;
         }
