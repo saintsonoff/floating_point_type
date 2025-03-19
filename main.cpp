@@ -68,7 +68,7 @@ int labwork_tests_parser(int argc, char** argv) {
                 std::cout << (fst * scd).output_labwork_task();
             } else if (op == "/") {
                 std::cout << (fst / scd).output_labwork_task();
-            } else {
+        } else {
                 std::cout << "uncorrect operation";
             }
         };

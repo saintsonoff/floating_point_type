@@ -63,6 +63,8 @@ class RoundingDevice<RoundingType::TOWARD_EVEN, IntegerType> {
 		
 		return {0, 0};
 	}
+
+	bool get_zero_sign() { return false; };
 };
 
 
@@ -87,6 +89,8 @@ class RoundingDevice<RoundingType::TOWARD_ZERO, IntegerType> {
 			IntegerType , int) {
 		return {0, 0};
 	}
+
+	bool get_zero_sign() { return false; };
 };
 
 
@@ -132,6 +136,8 @@ class RoundingDevice<RoundingType::TOWARD_POS_INF, IntegerType> {
 
 		return {min_mant, min_exp};
 	}
+
+	bool get_zero_sign() { return false; };
 };
 
 
@@ -174,6 +180,8 @@ class RoundingDevice<RoundingType::TOWARD_NEG_INF, IntegerType> {
 
 		return {min_mant, min_exp};
 	}
+
+	bool get_zero_sign() { return true; };
 };
 
 #endif // _ROUNDING_DEVICE_HPP_

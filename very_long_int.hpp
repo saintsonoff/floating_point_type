@@ -59,7 +59,9 @@ class uint_n_t {
 
     uint_n_t& operator/=(const uint_n_t& value) {
         if (value == uint_n_t{0b0}) {
-            throw std::domain_error("div_by_zero");
+            data_m = {};
+            data_m = ~data_m;
+            return *this;
         }
 
         uint_n_t quotient;
