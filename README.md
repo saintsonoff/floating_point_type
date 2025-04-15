@@ -17,7 +17,7 @@ half pressision, single pressision float type, by IEEE745.
 - std::string cast
 
 ## Verification
-this programm verified has 89% verified by ITMO closed tests
+this programm has 89% verified by ITMO university closed tests
 
 ### Run
 ```
