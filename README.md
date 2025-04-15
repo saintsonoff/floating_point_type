@@ -5,7 +5,7 @@
 > Если работа выполняется на `C++`, то файл, содержащий функцию `main` должен называться `main.cpp`. Иначе – `main.c`.
 
 ## Floating point numer
-half pressision, single pressision float type, by IEEE745.
+half pressision, single pressision float type, by IEEE 754.
 
 ## Supported operations
 - summ
